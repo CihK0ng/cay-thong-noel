@@ -550,9 +550,9 @@
             // --- GIỮ LẠI PHÍM BẤM ---
             document.addEventListener('keydown', function(event) {
                 const key = event.key;
-                if (key === '1') { state = 'TREE'; statusDiv.innerText = "✊ Thu Cây Thông"; statusDiv.style.color = "#FFD700"; }
-                if (key === '2') { state = 'PHOTO'; statusDiv.innerText = "👌 Xem Ảnh"; statusDiv.style.color = "#00FFFF"; }
-                if (key === '3') { state = 'EXPLODE'; statusDiv.innerText = "🖐 Bung Quà & Ảnh"; statusDiv.style.color = "#FFA500"; }
+                if (key === '1') { state = 'TREE'; statusDiv.innerText = "bấm 1 : ✊ Thu Cây Thông"; statusDiv.style.color = "#FFD700"; }
+                if (key === '2') { state = 'PHOTO'; statusDiv.innerText = "bấm 2 : 👌 Xem Ảnh"; statusDiv.style.color = "#00FFFF"; }
+                if (key === '3') { state = 'EXPLODE'; statusDiv.innerText = "bấm 3 : 🖐 Bung Quà & Ảnh & tắt Ảnh đi"; statusDiv.style.color = "#FFA500"; }
             });
 
             statusDiv.innerText = "Vuốt màn hình để xoay - Chạm vào ảnh để xem";
