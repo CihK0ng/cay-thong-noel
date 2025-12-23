@@ -376,7 +376,22 @@
             requestAnimationFrame(animate);
             const time = Date.now() * 0.001;
             const speed = 0.06;
-            const handRotY = (handX - 0.5) * 2.5;
+           // === 1. LOGIC TỐC ĐỘ XOAY (SENSITIVITY) ===
+            const aspect = window.innerWidth / window.innerHeight;
+            let sensitivity;
+
+            if (aspect > 1) {
+                // Laptop: Giữ tốc độ 3.0 (vừa phải)
+                sensitivity = 3.0; 
+            } else {
+                // Điện thoại: Cần tốc độ cao hơn để xoay hết vòng
+                // Giá trị 7.0 tương đương > 360 độ (hơn 1 vòng quay)
+                sensitivity = 7.0; 
+            }
+
+            // Tính góc xoay: (handX - 0.5) đi từ -0.5 đến 0.5
+            // Nếu sensitivity là 7 => góc xoay từ -3.5 đến 3.5 (đủ bao quát 1 vòng tròn)
+            const handRotY = (handX - 0.5) * sensitivity;
 
             // Vandiep
             updateParticleGroup(groupGold, state, speed, handRotY, time, false);
