@@ -424,14 +424,46 @@
                 });
                 selectedIndex = bestIdx;
 
-            } else if (state === 'PHOTO') {
+           } else if (state === 'PHOTO') {
+                // Lấy tỷ lệ màn hình hiện tại (Rộng / Cao)
+                const aspect = window.innerWidth / window.innerHeight;
+                
+                let targetScale;
+                let targetZ = 60; // Vị trí Z mặc định
+
+                // === LOGIC XỬ LÝ THEO MÀN HÌNH ===
+                if (aspect > 1) {
+                    // ---------------------------------------------
+                    // TRƯỜNG HỢP 1: LAPTOP / PC (Màn hình ngang)
+                    // ---------------------------------------------
+                    // Màn hình rộng, giữ nguyên kích thước to để ảnh rõ nét
+                    targetScale = 5; 
+                } else {
+                    // ---------------------------------------------
+                    // TRƯỜNG HỢP 2: ĐIỆN THOẠI (Màn hình dọc)
+                    // ---------------------------------------------
+                    // Màn hình hẹp, cần tính toán để ảnh không bị tràn ra 2 bên.
+                    // Công thức: (Hệ số * Tỷ lệ màn hình). 
+                    // Tỷ lệ càng hẹp (aspect càng nhỏ) thì ảnh càng phải nhỏ lại.
+                    // Số 4.6 là hệ số an toàn để ảnh nằm gọn trong khung (có lề).
+                    targetScale = 4.6 * aspect; 
+                    
+                    // (Tuỳ chọn) Đẩy ảnh lùi ra xa một chút xíu nếu cần, 
+                    // hoặc giữ nguyên 60 đều ổn với scale trên.
+                }
+
                 photoMeshes.forEach((mesh, i) => {
                     if (i === selectedIndex) {
-                        mesh.position.lerp(new THREE.Vector3(0, 0, 60), 0.1);
-                        mesh.scale.lerp(new THREE.Vector3(5, 5, 5), 0.1);
+                        // Di chuyển ảnh đến trước Camera
+                        mesh.position.lerp(new THREE.Vector3(0, 0, targetZ), 0.1);
+                        
+                        // Áp dụng kích thước đã tính toán ở trên
+                        mesh.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+                        
                         mesh.lookAt(camera.position);
                         mesh.rotation.z = 0;
                     } else {
+                        // Thu nhỏ các ảnh không được chọn
                         mesh.scale.lerp(new THREE.Vector3(0, 0, 0), 0.1);
                     }
                 });
