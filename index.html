@@ -372,11 +372,17 @@
             }
         }
 
-        function animate() {
+       function animate() {
             requestAnimationFrame(animate);
             const time = Date.now() * 0.001;
             const speed = 0.06;
-            const handRotY = (handX - 0.5) * 2.5;
+
+            // --- SỬA ĐỔI TẠI ĐÂY ---
+            // (handX - 0.5) chạy từ -0.5 đến 0.5
+            // Nhân với (Math.PI * 2) sẽ ra từ -PI đến +PI (tức là xoay đủ 360 độ)
+            // Bạn có thể nhân với 7 hoặc 8 nếu muốn xoay nhiều hơn 1 vòng
+            const handRotY = (handX - 0.5) * (Math.PI * 2); 
+            // -----------------------
 
             // Vandiep
             updateParticleGroup(groupGold, state, speed, handRotY, time, false);
@@ -405,7 +411,9 @@
 
                 photoMeshes.forEach((mesh, i) => {
                     mesh.visible = true;
-                    const angle = baseAngle + i * angleStep;
+                    // Cộng thêm handRotY vào đây để ảnh cũng xoay theo chuột khi đang bung ra
+                    const angle = baseAngle + i * angleStep; 
+                    
                     const x = Math.sin(angle) * CONFIG.photoOrbitRadius;
                     const z = Math.cos(angle) * CONFIG.photoOrbitRadius;
                     const y = Math.sin(time + i) * 3;
