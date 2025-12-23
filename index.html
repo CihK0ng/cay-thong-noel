@@ -443,139 +443,59 @@
         // ==========================================
         // 4. Vandiep
         // ==========================================
-        // function startSystem() {
-        //     document.getElementById('btnStart').style.display = 'none';
-        //     bgMusic.play().catch(e => console.log(e));
-        //     init3D();
-
-        //     const video = document.getElementsByClassName('input_video')[0];
-        //     const canvas = document.getElementById('camera-preview');
-        //     const ctx = canvas.getContext('2d');
-        //     const statusDiv = document.getElementById('status');
-
-        //     let frameCnt = 0;
-        //     const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
-        //     hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
-
-        //     hands.onResults(results => {
-        //         ctx.clearRect(0, 0, 100, 75); ctx.drawImage(results.image, 0, 0, 100, 75);
-
-        //         if (results.multiHandLandmarks.length > 0) {
-        //             const lm = results.multiHandLandmarks[0];
-        //             handX = lm[9].x;
-
-        //             const tips = [8, 12, 16, 20];
-        //             const wrist = lm[0];
-        //             let openDist = 0;
-        //             tips.forEach(i => openDist += Math.hypot(lm[i].x - wrist.x, lm[i].y - wrist.y));
-        //             const avgDist = openDist / 4;
-        //             const pinchDist = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
-
-        //             if (avgDist < 0.25) {
-        //                 state = 'TREE';
-        //                 statusDiv.innerText = "✊ Thu Cây Thông"; statusDiv.style.color = "#FFD700";
-        //             } else if (pinchDist < 0.05) {
-        //                 state = 'PHOTO';
-        //                 statusDiv.innerText = "👌 Xem Ảnh"; statusDiv.style.color = "#00FFFF";
-        //             } else {
-        //                 state = 'EXPLODE';
-        //                 statusDiv.innerText = "🖐 Bung Quà & Ảnh"; statusDiv.style.color = "#FFA500";
-        //             }
-        //         } else {
-        //             state = 'TREE';
-        //             statusDiv.innerText = "🎄 Giang Sinh An Lanh 🎄"; statusDiv.style.color = "#FFF";
-        //         }
-        //     });
-
-        //     const cameraUtils = new Camera(video, {
-        //         onFrame: async () => {
-        //             frameCnt++; if (frameCnt % 3 !== 0) return;
-        //             await hands.send({ image: video });
-        //         }, width: 320, height: 240
-        //     });
-        //     cameraUtils.start();
-        // }
-
-        // ==========================================
-        // 4. Vandiep (Đã sửa đổi: Dùng Phím & Chuột)
-        // ==========================================
-      // ==========================================
-        // 4. Vandiep (Cập nhật: Phím 1,2,3 + Di chuyển WASD)
-        // ==========================================
         function startSystem() {
-            // 1. Ẩn nút Start và bật nhạc
             document.getElementById('btnStart').style.display = 'none';
             bgMusic.play().catch(e => console.log(e));
-
-            // 2. Khởi tạo màn hình 3D
             init3D();
 
+            const video = document.getElementsByClassName('input_video')[0];
+            const canvas = document.getElementById('camera-preview');
+            const ctx = canvas.getContext('2d');
             const statusDiv = document.getElementById('status');
-            
-            // Ẩn khung camera preview
-            const camCanvas = document.getElementById('camera-preview');
-            if (camCanvas) camCanvas.style.display = 'none';
 
-            // --- CÀI ĐẶT ĐIỀU KHIỂN BÀN PHÍM ---
-            document.addEventListener('keydown', function(event) {
-                const key = event.key.toLowerCase(); // Chuyển về chữ thường để không lo CapsLock
-                const moveSpeed = 5; // Tốc độ di chuyển camera
+            let frameCnt = 0;
+            const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+            hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
 
-                // --- LOGIC TRẠNG THÁI (1, 2, 3) ---
-                if (key === '1') {
-                    state = 'TREE';
-                    statusDiv.innerText = "✊ Thu Cây Thông (Phím 1)"; 
-                    statusDiv.style.color = "#FFD700";
-                } 
-                else if (key === '2') {
-                    state = 'PHOTO';
-                    statusDiv.innerText = "👌 Xem Ảnh (Phím 2)"; 
-                    statusDiv.style.color = "#00FFFF";
-                } 
-                else if (key === '3') {
-                    state = 'EXPLODE';
-                    statusDiv.innerText = "🖐 Bung Quà & Ảnh (Phím 3)"; 
-                    statusDiv.style.color = "#FFA500";
-                }
-                
-                // --- LOGIC DI CHUYỂN CAMERA (W, A, S, D) ---
-                else if (camera) { 
-                    switch(key) {
-                        case 'w': // Tiến tới (Zoom in)
-                            camera.position.z -= moveSpeed;
-                            break;
-                        case 's': // Lùi lại (Zoom out)
-                            camera.position.z += moveSpeed;
-                            break;
-                        case 'a': // Sang trái
-                            camera.position.x -= moveSpeed;
-                            break;
-                        case 'd': // Sang phải
-                            camera.position.x += moveSpeed;
-                            break;
-                        // Thêm phím Q và E để bay Lên/Xuống nếu thích
-                        case 'q': // Bay lên
-                            camera.position.y += moveSpeed;
-                            break;
-                        case 'e': // Hạ xuống
-                            camera.position.y -= moveSpeed;
-                            break;
+            hands.onResults(results => {
+                ctx.clearRect(0, 0, 100, 75); ctx.drawImage(results.image, 0, 0, 100, 75);
+
+                if (results.multiHandLandmarks.length > 0) {
+                    const lm = results.multiHandLandmarks[0];
+                    handX = lm[9].x;
+
+                    const tips = [8, 12, 16, 20];
+                    const wrist = lm[0];
+                    let openDist = 0;
+                    tips.forEach(i => openDist += Math.hypot(lm[i].x - wrist.x, lm[i].y - wrist.y));
+                    const avgDist = openDist / 4;
+                    const pinchDist = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
+
+                    if (avgDist < 0.25) {
+                        state = 'TREE';
+                        statusDiv.innerText = "✊ Thu Cây Thông"; statusDiv.style.color = "#FFD700";
+                    } else if (pinchDist < 0.05) {
+                        state = 'PHOTO';
+                        statusDiv.innerText = "👌 Xem Ảnh"; statusDiv.style.color = "#00FFFF";
+                    } else {
+                        state = 'EXPLODE';
+                        statusDiv.innerText = "🖐 Bung Quà & Ảnh"; statusDiv.style.color = "#FFA500";
                     }
+                } else {
+                    state = 'TREE';
+                    statusDiv.innerText = "🎄 Giang Sinh An Lanh 🎄"; statusDiv.style.color = "#FFF";
                 }
             });
 
-            // --- LOGIC XOAY (CHUỘT) ---
-            document.addEventListener('mousemove', function(event) {
-                // Di chuột để xoay cây thông
-                handX = event.clientX / window.innerWidth;
+            const cameraUtils = new Camera(video, {
+                onFrame: async () => {
+                    frameCnt++; if (frameCnt % 3 !== 0) return;
+                    await hands.send({ image: video });
+                }, width: 320, height: 240
             });
-            
-            // Đặt trạng thái mặc định
-            statusDiv.innerText = "Dùng 1,2,3 đổi hiệu ứng - WASD để di chuyển";
-            statusDiv.style.color = "#FFF";
+            cameraUtils.start();
         }
 
-        
         window.addEventListener('resize', () => {
             if (camera) { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
         });
