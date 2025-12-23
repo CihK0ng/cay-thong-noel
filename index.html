@@ -372,17 +372,11 @@
             }
         }
 
-       function animate() {
+        function animate() {
             requestAnimationFrame(animate);
             const time = Date.now() * 0.001;
             const speed = 0.06;
-
-            // --- SỬA ĐỔI TẠI ĐÂY ---
-            // (handX - 0.5) chạy từ -0.5 đến 0.5
-            // Nhân với (Math.PI * 2) sẽ ra từ -PI đến +PI (tức là xoay đủ 360 độ)
-            // Bạn có thể nhân với 7 hoặc 8 nếu muốn xoay nhiều hơn 1 vòng
-            const handRotY = (handX - 0.5) * (Math.PI * 2); 
-            // -----------------------
+            const handRotY = (handX - 0.5) * 2.5;
 
             // Vandiep
             updateParticleGroup(groupGold, state, speed, handRotY, time, false);
@@ -411,9 +405,7 @@
 
                 photoMeshes.forEach((mesh, i) => {
                     mesh.visible = true;
-                    // Cộng thêm handRotY vào đây để ảnh cũng xoay theo chuột khi đang bung ra
-                    const angle = baseAngle + i * angleStep; 
-                    
+                    const angle = baseAngle + i * angleStep;
                     const x = Math.sin(angle) * CONFIG.photoOrbitRadius;
                     const z = Math.cos(angle) * CONFIG.photoOrbitRadius;
                     const y = Math.sin(time + i) * 3;
@@ -507,6 +499,9 @@
         // ==========================================
         // 4. Vandiep (Đã sửa đổi: Dùng Phím & Chuột)
         // ==========================================
+      // ==========================================
+        // 4. Vandiep (Cập nhật: Phím 1,2,3 + Di chuyển WASD)
+        // ==========================================
         function startSystem() {
             // 1. Ẩn nút Start và bật nhạc
             document.getElementById('btnStart').style.display = 'none';
@@ -517,48 +512,70 @@
 
             const statusDiv = document.getElementById('status');
             
-            // Ẩn khung camera preview đi vì không dùng webcam nữa
+            // Ẩn khung camera preview
             const camCanvas = document.getElementById('camera-preview');
             if (camCanvas) camCanvas.style.display = 'none';
 
-            // --- THAY THẾ THUẬT TOÁN WEBCAM BẰNG BÀN PHÍM ---
-            
-            // Lắng nghe sự kiện bấm phím
+            // --- CÀI ĐẶT ĐIỀU KHIỂN BÀN PHÍM ---
             document.addEventListener('keydown', function(event) {
-                if (event.key === '1') {
-                    // Giả lập trạng thái nắm tay (Fist) -> Thu cây thông
+                const key = event.key.toLowerCase(); // Chuyển về chữ thường để không lo CapsLock
+                const moveSpeed = 5; // Tốc độ di chuyển camera
+
+                // --- LOGIC TRẠNG THÁI (1, 2, 3) ---
+                if (key === '1') {
                     state = 'TREE';
                     statusDiv.innerText = "✊ Thu Cây Thông (Phím 1)"; 
                     statusDiv.style.color = "#FFD700";
                 } 
-                else if (event.key === '2') {
-                    // Giả lập trạng thái chụm tay (Pinch) -> Xem ảnh
+                else if (key === '2') {
                     state = 'PHOTO';
                     statusDiv.innerText = "👌 Xem Ảnh (Phím 2)"; 
                     statusDiv.style.color = "#00FFFF";
                 } 
-                else if (event.key === '3') {
-                    // Giả lập trạng thái mở tay (Open) -> Bung quà
+                else if (key === '3') {
                     state = 'EXPLODE';
                     statusDiv.innerText = "🖐 Bung Quà & Ảnh (Phím 3)"; 
                     statusDiv.style.color = "#FFA500";
                 }
+                
+                // --- LOGIC DI CHUYỂN CAMERA (W, A, S, D) ---
+                else if (camera) { 
+                    switch(key) {
+                        case 'w': // Tiến tới (Zoom in)
+                            camera.position.z -= moveSpeed;
+                            break;
+                        case 's': // Lùi lại (Zoom out)
+                            camera.position.z += moveSpeed;
+                            break;
+                        case 'a': // Sang trái
+                            camera.position.x -= moveSpeed;
+                            break;
+                        case 'd': // Sang phải
+                            camera.position.x += moveSpeed;
+                            break;
+                        // Thêm phím Q và E để bay Lên/Xuống nếu thích
+                        case 'q': // Bay lên
+                            camera.position.y += moveSpeed;
+                            break;
+                        case 'e': // Hạ xuống
+                            camera.position.y -= moveSpeed;
+                            break;
+                    }
+                }
             });
 
-            // --- THAY THẾ XOAY TAY BẰNG DI CHUYỂN CHUỘT ---
-            
-            // Lắng nghe sự kiện di chuột để thay đổi biến handX
+            // --- LOGIC XOAY (CHUỘT) ---
             document.addEventListener('mousemove', function(event) {
-                // Chuyển vị trí chuột (từ 0 đến chiều rộng màn hình) thành tỉ lệ 0.0 -> 1.0
-                // Để thay thế cho giá trị lm[9].x từ webcam cũ
+                // Di chuột để xoay cây thông
                 handX = event.clientX / window.innerWidth;
             });
             
-            // Đặt trạng thái mặc định ban đầu
-            statusDiv.innerText = "🎄 Giang Sinh An Lanh (Dùng phím 1,2,3) 🎄";
+            // Đặt trạng thái mặc định
+            statusDiv.innerText = "Dùng 1,2,3 đổi hiệu ứng - WASD để di chuyển";
             statusDiv.style.color = "#FFF";
         }
 
+        
         window.addEventListener('resize', () => {
             if (camera) { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
         });
